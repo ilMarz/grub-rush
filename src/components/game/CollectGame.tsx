@@ -716,16 +716,34 @@ function Starfield() {
   const groupRef = useRef<Group>(null);
   const planetRef = useRef<Mesh>(null);
   const moonRef = useRef<Mesh>(null);
+  const starRefs = useRef<Map<number, Mesh>>(new Map());
 
   const stars = useMemo(
     () =>
-      Array.from({ length: 90 }, (_, index) => ({
+      Array.from({ length: 160 }, (_, index) => ({
+        id: index,
+        color: ["#ffffff", "#ffffff", "#fde68a", "#a5f3fc", "#f0abfc", "#ffffff"][index % 6],
+        baseScale: randomBetween(0.04, 0.16),
+        phase: randomBetween(0, Math.PI * 2),
+        speed: randomBetween(0.6, 2.2),
+        x: randomBetween(-48, 48),
+        y: randomBetween(7, 28),
+        z: randomBetween(-52, 32)
+      })),
+    []
+  );
+
+  const sparkles = useMemo(
+    () =>
+      Array.from({ length: 12 }, (_, index) => ({
         id: index,
         color: ["#ffffff", "#fde68a", "#a5f3fc", "#f0abfc"][index % 4],
-        scale: randomBetween(0.05, 0.14),
-        x: randomBetween(-34, 34),
-        y: randomBetween(8, 22),
-        z: randomBetween(-42, 28)
+        baseScale: randomBetween(0.18, 0.32),
+        phase: randomBetween(0, Math.PI * 2),
+        speed: randomBetween(1.2, 3.0),
+        x: randomBetween(-44, 44),
+        y: randomBetween(9, 24),
+        z: randomBetween(-48, 28)
       })),
     []
   );
@@ -737,19 +755,51 @@ function Starfield() {
       planetRef.current.rotation.y = t * 0.09;
       planetRef.current.rotation.x = t * 0.03;
     }
-    if (moonRef.current) {
-      moonRef.current.rotation.y = t * 0.14;
-    }
+    if (moonRef.current) moonRef.current.rotation.y = t * 0.14;
+
+    starRefs.current.forEach((mesh, id) => {
+      const star = id < 160 ? stars[id] : sparkles[id - 160];
+      if (!star) return;
+      const twinkle = 0.55 + 0.45 * Math.sin(t * star.speed + star.phase);
+      mesh.scale.setScalar(star.baseScale * twinkle);
+    });
   });
 
   return (
     <group ref={groupRef}>
       {stars.map((star) => (
-        <mesh key={star.id} position={[star.x, star.y, star.z]} scale={star.scale}>
-          <sphereGeometry args={[1, 8, 8]} />
+        <mesh
+          key={star.id}
+          ref={(el) => { if (el) starRefs.current.set(star.id, el); }}
+          position={[star.x, star.y, star.z]}
+          scale={star.baseScale}
+        >
+          <sphereGeometry args={[1, 6, 6]} />
           <meshBasicMaterial color={star.color} />
         </mesh>
       ))}
+
+      {sparkles.map((spark) => (
+        <group
+          key={spark.id}
+          ref={(el) => { if (el) { const m = el.children[0] as Mesh; if (m) starRefs.current.set(160 + spark.id, m); } }}
+          position={[spark.x, spark.y, spark.z]}
+        >
+          <mesh scale={spark.baseScale}>
+            <sphereGeometry args={[1, 8, 8]} />
+            <meshStandardMaterial color={spark.color} emissive={spark.color} emissiveIntensity={1.8} toneMapped={false} />
+          </mesh>
+          <mesh scale={[spark.baseScale * 0.08, spark.baseScale * 2.2, spark.baseScale * 0.08]}>
+            <boxGeometry />
+            <meshBasicMaterial color={spark.color} transparent opacity={0.6} />
+          </mesh>
+          <mesh scale={[spark.baseScale * 2.2, spark.baseScale * 0.08, spark.baseScale * 0.08]}>
+            <boxGeometry />
+            <meshBasicMaterial color={spark.color} transparent opacity={0.6} />
+          </mesh>
+        </group>
+      ))}
+
       <mesh ref={planetRef} position={[-17, 11, -18]} rotation={[0.35, 0.2, -0.4]}>
         <sphereGeometry args={[2.7, 32, 16]} />
         <meshStandardMaterial color="#fb7185" emissive="#fb2055" emissiveIntensity={0.35} roughness={0.45} />
