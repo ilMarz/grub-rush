@@ -1,8 +1,9 @@
 "use client";
 
 import { Canvas, useFrame, useThree } from "@react-three/fiber";
+import { EffectComposer, Bloom, Vignette } from "@react-three/postprocessing";
 import { Suspense, useCallback, useEffect, useMemo, useRef, useState } from "react";
-import type { Group } from "three";
+import type { Group, Mesh, MeshStandardMaterial } from "three";
 import { Vector3 } from "three";
 import { GlbCharacter } from "./GlbCharacter";
 import styles from "./CollectGame.module.css";
@@ -53,6 +54,14 @@ type PlayerBrick = SceneryItem & {
 };
 
 type NpcKind = "adventurer" | "king" | "farmer" | "hoodie";
+
+type CollectParticle = {
+  id: number;
+  x: number;
+  z: number;
+  color: string;
+  startTime: number;
+};
 
 const arenaSize = 42;
 const playerSpeed = 11.2;
@@ -191,6 +200,7 @@ export default function CollectGame() {
     <main className={styles.shell}>
       <Canvas
         shadows
+        dpr={[1, 2]}
         camera={{
           fov: 52,
           position: [0, 13, 17]
@@ -211,6 +221,10 @@ export default function CollectGame() {
             }}
           />
         </Suspense>
+        <EffectComposer>
+          <Bloom intensity={1.4} luminanceThreshold={0.15} luminanceSmoothing={0.9} mipmapBlur />
+          <Vignette offset={0.38} darkness={0.6} />
+        </EffectComposer>
       </Canvas>
 
       <section className={styles.hud} aria-label="Game status">
@@ -259,25 +273,29 @@ export default function CollectGame() {
       ) : null}
 
       {status === "playing" ? (
-        <section className={styles.controls} aria-label="Movement controls">
-          <HoldButton direction="up" label="Forward" onHold={(active) => setDirection("up", active)} />
-          <div className={styles.controlRow}>
-            <HoldButton direction="left" label="Left" onHold={(active) => setDirection("left", active)} />
+        <>
+          <section className={styles.controlsLeft} aria-label="Forward and back controls">
+            <HoldButton direction="up" label="Forward" onHold={(active) => setDirection("up", active)} />
             <HoldButton direction="down" label="Back" onHold={(active) => setDirection("down", active)} />
-            <HoldButton direction="right" label="Right" onHold={(active) => setDirection("right", active)} />
-          </div>
-          <button
-            aria-label="Place brick"
-            className={styles.brickButton}
-            type="button"
-            onPointerDown={(event) => {
-              event.currentTarget.setPointerCapture(event.pointerId);
-              requestBrick();
-            }}
-          >
-            Brick
-          </button>
-        </section>
+          </section>
+          <section className={styles.controlsRight} aria-label="Horizontal controls">
+            <div className={styles.controlRow}>
+              <HoldButton direction="left" label="Left" onHold={(active) => setDirection("left", active)} />
+              <HoldButton direction="right" label="Right" onHold={(active) => setDirection("right", active)} />
+            </div>
+            <button
+              aria-label="Place brick"
+              className={styles.brickButton}
+              type="button"
+              onPointerDown={(event) => {
+                event.currentTarget.setPointerCapture(event.pointerId);
+                requestBrick();
+              }}
+            >
+              Brick
+            </button>
+          </section>
+        </>
       ) : null}
     </main>
   );
@@ -342,6 +360,8 @@ function CollectScene({
   const [playerBricks, setPlayerBricks] = useState<PlayerBrick[]>([]);
   const [isMoving, setIsMoving] = useState(false);
   const isMovingRef = useRef(false);
+  const collectParticlesRef = useRef<CollectParticle[]>([]);
+  const [collectParticles, setCollectParticles] = useState<CollectParticle[]>([]);
   const cameraTargetRef = useRef(new Vector3());
   const nextIdRef = useRef(1);
   const nextNpcIdRef = useRef(1);
@@ -452,6 +472,10 @@ function CollectScene({
       const updatedNpcs = npcsRef.current.map((npc) =>
         moveNpc(npc, collectiblesRef.current, currentObstacles, delta)
       );
+
+      const nextParticles = collectParticlesRef.current.filter(p => elapsed - p.startTime < 0.7);
+      let particlesChanged = nextParticles.length !== collectParticlesRef.current.length;
+
       const remaining = collectiblesRef.current.filter((item) => {
         const distance = Math.hypot(
           item.x - playerPositionRef.current.x,
@@ -460,6 +484,8 @@ function CollectScene({
 
         if (distance < collectDistance) {
           onCollect();
+          nextParticles.push({ id: nextIdRef.current++, x: item.x, z: item.z, color: item.color, startTime: elapsed });
+          particlesChanged = true;
           return false;
         }
 
@@ -473,6 +499,11 @@ function CollectScene({
 
         return true;
       });
+
+      if (particlesChanged) {
+        collectParticlesRef.current = nextParticles;
+        setCollectParticles([...nextParticles]);
+      }
 
       spawnClockRef.current += delta;
       npcSpawnClockRef.current += delta;
@@ -556,7 +587,8 @@ function CollectScene({
         castShadow
         intensity={2.6}
         position={[10, 20, 10]}
-        shadow-mapSize={[1024, 1024]}
+        shadow-mapSize={[2048, 2048]}
+        shadow-bias={-0.0005}
       />
       <pointLight color="#ff8bd6" intensity={2.3} distance={36} position={[-14, 8, -10]} />
       <pointLight color="#63e6ff" intensity={2.1} distance={32} position={[16, 7, 12]} />
@@ -567,15 +599,7 @@ function CollectScene({
         <meshStandardMaterial color="#3b2a86" emissive="#140f3f" emissiveIntensity={0.18} roughness={0.78} />
       </mesh>
 
-      <mesh receiveShadow position={[0, 0.02, 0]} rotation={[-Math.PI / 2, 0, 0]}>
-        <ringGeometry args={[arenaSize * 0.35, arenaSize * 0.49, 96]} />
-        <meshStandardMaterial color="#facc15" emissive="#4a2b05" emissiveIntensity={0.22} roughness={0.62} />
-      </mesh>
-
-      <mesh receiveShadow position={[0, 0.03, 0]} rotation={[-Math.PI / 2, 0, 0]}>
-        <ringGeometry args={[arenaSize * 0.12, arenaSize * 0.18, 72]} />
-        <meshStandardMaterial color="#2dd4bf" emissive="#063d37" emissiveIntensity={0.3} roughness={0.58} />
-      </mesh>
+      <PulsingRings />
 
       {scenery.map((item) => (
         <ObstacleMesh key={item.id} item={item} />
@@ -587,6 +611,10 @@ function CollectScene({
 
       {collectibles.map((item) => (
         <CollectibleMesh key={item.id} item={item} />
+      ))}
+
+      {collectParticles.map((p) => (
+        <CollectParticleBurst key={p.id} particle={p} />
       ))}
 
       {npcs.map((npc) => (
@@ -613,7 +641,81 @@ function CollectScene({
   );
 }
 
+function PulsingRings() {
+  const outerRef = useRef<Mesh>(null);
+  const innerRef = useRef<Mesh>(null);
+
+  useFrame(({ clock }) => {
+    const t = clock.elapsedTime;
+    if (outerRef.current) {
+      (outerRef.current.material as MeshStandardMaterial).emissiveIntensity = 0.22 + Math.sin(t * 1.3) * 0.18;
+    }
+    if (innerRef.current) {
+      (innerRef.current.material as MeshStandardMaterial).emissiveIntensity = 0.32 + Math.sin(t * 1.9 + 1.1) * 0.22;
+    }
+  });
+
+  return (
+    <>
+      <mesh ref={outerRef} receiveShadow position={[0, 0.02, 0]} rotation={[-Math.PI / 2, 0, 0]}>
+        <ringGeometry args={[arenaSize * 0.35, arenaSize * 0.49, 96]} />
+        <meshStandardMaterial color="#facc15" emissive="#facc15" emissiveIntensity={0.22} roughness={0.55} />
+      </mesh>
+      <mesh ref={innerRef} receiveShadow position={[0, 0.03, 0]} rotation={[-Math.PI / 2, 0, 0]}>
+        <ringGeometry args={[arenaSize * 0.12, arenaSize * 0.18, 72]} />
+        <meshStandardMaterial color="#2dd4bf" emissive="#2dd4bf" emissiveIntensity={0.32} roughness={0.5} />
+      </mesh>
+    </>
+  );
+}
+
+function CollectParticleBurst({ particle }: { particle: CollectParticle }) {
+  const meshRefs = useRef<(Mesh | null)[]>([]);
+
+  useFrame(({ clock }) => {
+    const age = clock.elapsedTime - particle.startTime;
+    const t = Math.min(age / 0.65, 1);
+    const radius = 0.15 + t * 1.2;
+    const opacity = t < 0.3 ? 1 : Math.max(0, 1 - (t - 0.3) / 0.7);
+    const y = 0.85 + t * 1.8;
+
+    meshRefs.current.forEach((mesh, i) => {
+      if (!mesh) return;
+      const angle = (i / 7) * Math.PI * 2;
+      mesh.position.set(
+        particle.x + Math.cos(angle) * radius,
+        y,
+        particle.z + Math.sin(angle) * radius
+      );
+      const mat = mesh.material as MeshStandardMaterial;
+      mat.opacity = opacity;
+      mat.emissiveIntensity = opacity * 1.5;
+    });
+  });
+
+  return (
+    <>
+      {Array.from({ length: 7 }, (_, i) => (
+        <mesh key={i} ref={(el) => { meshRefs.current[i] = el; }} position={[particle.x, 0.85, particle.z]}>
+          <sphereGeometry args={[0.11, 6, 4]} />
+          <meshStandardMaterial
+            color={particle.color}
+            emissive={particle.color}
+            emissiveIntensity={1.5}
+            transparent
+            depthWrite={false}
+          />
+        </mesh>
+      ))}
+    </>
+  );
+}
+
 function Starfield() {
+  const groupRef = useRef<Group>(null);
+  const planetRef = useRef<Mesh>(null);
+  const moonRef = useRef<Mesh>(null);
+
   const stars = useMemo(
     () =>
       Array.from({ length: 90 }, (_, index) => ({
@@ -627,25 +729,37 @@ function Starfield() {
     []
   );
 
+  useFrame(({ clock }) => {
+    const t = clock.elapsedTime;
+    if (groupRef.current) groupRef.current.rotation.y = t * 0.004;
+    if (planetRef.current) {
+      planetRef.current.rotation.y = t * 0.09;
+      planetRef.current.rotation.x = t * 0.03;
+    }
+    if (moonRef.current) {
+      moonRef.current.rotation.y = t * 0.14;
+    }
+  });
+
   return (
-    <group>
+    <group ref={groupRef}>
       {stars.map((star) => (
         <mesh key={star.id} position={[star.x, star.y, star.z]} scale={star.scale}>
           <sphereGeometry args={[1, 8, 8]} />
           <meshBasicMaterial color={star.color} />
         </mesh>
       ))}
-      <mesh position={[-17, 11, -18]} rotation={[0.35, 0.2, -0.4]}>
+      <mesh ref={planetRef} position={[-17, 11, -18]} rotation={[0.35, 0.2, -0.4]}>
         <sphereGeometry args={[2.7, 32, 16]} />
-        <meshStandardMaterial color="#fb7185" emissive="#4c0519" roughness={0.48} />
+        <meshStandardMaterial color="#fb7185" emissive="#fb2055" emissiveIntensity={0.35} roughness={0.45} />
       </mesh>
       <mesh position={[-17, 11, -18]} rotation={[1.15, 0.25, -0.2]}>
         <torusGeometry args={[4.1, 0.08, 10, 72]} />
-        <meshStandardMaterial color="#fde68a" emissive="#78350f" roughness={0.4} />
+        <meshStandardMaterial color="#fde68a" emissive="#fde68a" emissiveIntensity={0.4} roughness={0.35} />
       </mesh>
-      <mesh position={[18, 13, -22]}>
+      <mesh ref={moonRef} position={[18, 13, -22]}>
         <sphereGeometry args={[1.8, 24, 14]} />
-        <meshStandardMaterial color="#38bdf8" emissive="#082f49" roughness={0.52} />
+        <meshStandardMaterial color="#38bdf8" emissive="#0ea5e9" emissiveIntensity={0.3} roughness={0.48} />
       </mesh>
     </group>
   );
@@ -698,7 +812,7 @@ function CollectibleMesh({ item }: { item: Collectible }) {
   return (
     <group ref={ref} position={[item.x, 0.85, item.z]}>
       <RecognizablePrize item={item} />
-      <pointLight color={item.color} intensity={1.15} distance={5} />
+      <pointLight color={item.color} intensity={2.8} distance={7} />
     </group>
   );
 }
@@ -709,7 +823,7 @@ function RecognizablePrize({ item }: { item: Collectible }) {
       <group rotation={[Math.PI / 2, 0, 0]}>
         <mesh castShadow>
           <cylinderGeometry args={[0.58, 0.58, 0.16, 44]} />
-          <meshStandardMaterial color="#ffd166" emissive="#7c2d12" metalness={0.42} roughness={0.24} />
+          <meshStandardMaterial color="#ffd166" emissive="#ffd166" emissiveIntensity={0.5} metalness={0.42} roughness={0.24} />
         </mesh>
         <mesh position={[0, 0.09, 0]}>
           <torusGeometry args={[0.36, 0.035, 8, 40]} />
@@ -724,7 +838,7 @@ function RecognizablePrize({ item }: { item: Collectible }) {
       <group>
         <mesh castShadow position={[0, 0.08, 0]}>
           <octahedronGeometry args={[0.68, 0]} />
-          <meshStandardMaterial color="#67e8f9" emissive="#155e75" metalness={0.18} roughness={0.22} />
+          <meshStandardMaterial color="#67e8f9" emissive="#67e8f9" emissiveIntensity={0.5} metalness={0.18} roughness={0.22} />
         </mesh>
         <mesh castShadow position={[0, -0.42, 0]} rotation={[0, Math.PI / 4, 0]}>
           <coneGeometry args={[0.42, 0.72, 4]} />
@@ -739,7 +853,7 @@ function RecognizablePrize({ item }: { item: Collectible }) {
       <group>
         <mesh castShadow>
           <boxGeometry args={[0.85, 0.62, 0.85]} />
-          <meshStandardMaterial color="#fb7185" emissive="#7f1d1d" roughness={0.42} />
+          <meshStandardMaterial color="#fb7185" emissive="#fb7185" emissiveIntensity={0.45} roughness={0.42} />
         </mesh>
         <mesh castShadow position={[0, 0.01, 0]}>
           <boxGeometry args={[0.16, 0.68, 0.9]} />
@@ -761,7 +875,7 @@ function RecognizablePrize({ item }: { item: Collectible }) {
     <group>
       <mesh castShadow>
         <sphereGeometry args={[0.26, 16, 10]} />
-        <meshStandardMaterial color="#f0abfc" emissive="#701a75" emissiveIntensity={0.4} roughness={0.26} />
+        <meshStandardMaterial color="#f0abfc" emissive="#f0abfc" emissiveIntensity={0.55} roughness={0.26} />
       </mesh>
       {[0, 1, 2, 3, 4].map((point) => {
         const angle = (point / 5) * Math.PI * 2;
@@ -1082,11 +1196,11 @@ function createPlayerBrick({
 
   for (const sideOffset of [0, -0.8, 0.8]) {
     const x = clampToArena(
-      playerPosition.x - directionX * brickPlaceDistance + sideX * sideOffset,
+      playerPosition.x + directionX * brickPlaceDistance + sideX * sideOffset,
       Math.max(brickWidth, brickDepth) / 2
     );
     const z = clampToArena(
-      playerPosition.z - directionZ * brickPlaceDistance + sideZ * sideOffset,
+      playerPosition.z + directionZ * brickPlaceDistance + sideZ * sideOffset,
       Math.max(brickWidth, brickDepth) / 2
     );
 

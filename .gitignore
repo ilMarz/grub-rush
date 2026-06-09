@@ -13,3 +13,4 @@ bun.lockb
 .next-dev.err.log
 .next-start.log
 .next-start.err.log
+.idea
