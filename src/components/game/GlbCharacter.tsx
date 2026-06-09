@@ -2,7 +2,8 @@
 
 import { useAnimations, useGLTF } from "@react-three/drei";
 import { useEffect, useMemo, useRef } from "react";
-import type { Group } from "three";
+import type { Group, Mesh } from "three";
+import { Color, MeshStandardMaterial } from "three";
 import { clone } from "three/examples/jsm/utils/SkeletonUtils.js";
 
 type GlbCharacterProps = {
@@ -12,6 +13,7 @@ type GlbCharacterProps = {
   rotationOffset?: number;
   scale?: number;
   src: string;
+  tint?: string;
 };
 
 export function GlbCharacter({
@@ -20,7 +22,8 @@ export function GlbCharacter({
   positionY = 0,
   rotationOffset = 0,
   scale = 1,
-  src
+  src,
+  tint
 }: GlbCharacterProps) {
   const groupRef = useRef<Group>(null);
   const gltf = useGLTF(src);
@@ -36,11 +39,20 @@ export function GlbCharacter({
   );
 
   useEffect(() => {
+    const tintColor = tint ? new Color(tint) : null;
     scene.traverse((object) => {
       object.castShadow = true;
       object.receiveShadow = true;
+      if (tintColor && (object as Mesh).isMesh) {
+        const mesh = object as Mesh;
+        const original = mesh.material as MeshStandardMaterial;
+        const mat = original.clone();
+        mat.emissive.set(tintColor);
+        mat.emissiveIntensity = 0.22;
+        mesh.material = mat;
+      }
     });
-  }, [scene]);
+  }, [scene, tint]);
 
   useEffect(() => {
     const action = actionName ? actions[actionName] : undefined;

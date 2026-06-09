@@ -636,6 +636,7 @@ function CollectScene({
 
       <group ref={playerRef}>
         <PlayerCharacter isMoving={isMoving} />
+        <pointLight color="#facc15" intensity={3.5} distance={5} position={[0, 1.5, 0]} />
       </group>
     </>
   );
@@ -938,7 +939,7 @@ function createNpc(
   const id = nextNpcIdRef.current++;
   const names = ["Mia", "Leo", "Nora", "Teo"];
   const colors = ["#7dd3fc", "#c084fc", "#fb7185", "#86efac"];
-  const kinds: NpcKind[] = ["adventurer", "king", "farmer", "hoodie"];
+  const kinds: NpcKind[] = ["adventurer", "farmer", "hoodie", "adventurer"];
 
   return {
     id,
@@ -1099,11 +1100,12 @@ function rotateDirection(direction: { x: number; z: number }, angle: number) {
 function PlayerCharacter({ isMoving }: { isMoving: boolean }) {
   return (
     <GlbCharacter
-      animationSpeed={2.2}
+      animationSpeed={1.35}
       isMoving={isMoving}
       rotationOffset={0}
       scale={1}
-      src="/assets/characters/cesium-man.glb"
+      src="/assets/characters/quaternius-king.glb"
+      tint="#facc15"
     />
   );
 }
