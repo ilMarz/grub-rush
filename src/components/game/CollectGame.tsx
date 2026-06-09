@@ -392,7 +392,7 @@ function CollectScene({
     lastBrickTimeRef.current = -brickCooldownSeconds;
     handledBrickRequestRef.current = brickRequestRef.current;
     const initial = Array.from({ length: 6 }, () => createCollectible(nextIdRef));
-    const initialNpcs = [createNpc(nextNpcIdRef, obstacles, 12, -12), createNpc(nextNpcIdRef, obstacles, -12, 12)];
+    const initialNpcs = [createNpc(nextNpcIdRef, obstacles), createNpc(nextNpcIdRef, obstacles)];
     playerBricksRef.current = [];
     collectiblesRef.current = initial;
     npcsRef.current = initialNpcs;
