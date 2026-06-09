@@ -1099,7 +1099,7 @@ function rotateDirection(direction: { x: number; z: number }, angle: number) {
 function PlayerCharacter({ isMoving }: { isMoving: boolean }) {
   return (
     <GlbCharacter
-      animationSpeed={1.35}
+      animationSpeed={2.2}
       isMoving={isMoving}
       rotationOffset={0}
       scale={1}

@@ -28,7 +28,8 @@ export function GlbCharacter({
   const { actions, names } = useAnimations(gltf.animations, groupRef);
   const actionName = useMemo(
     () =>
-      names.find((name) => /walk|run/i.test(name)) ??
+      names.find((name) => /run/i.test(name)) ??
+      names.find((name) => /walk/i.test(name)) ??
       names.find((name) => !/idle|pose/i.test(name)) ??
       names[0],
     [names]
