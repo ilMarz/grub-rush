@@ -248,7 +248,7 @@ export default function CollectGame() {
       {status !== "playing" ? (
         <section className={styles.overlay} aria-live="polite">
           <div className={styles.panel}>
-            <p>NPC Collect Run</p>
+            <p>Grab Rush</p>
             <h1>{status === "ready" ? "Collect the cosmic prizes" : "Time is up"}</h1>
             <span>Use the D-pad or WASD to move. Tap Brick or press E/Space to block rivals.</span>
             <button type="button" onClick={startGame}>

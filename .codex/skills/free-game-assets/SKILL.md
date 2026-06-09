@@ -1,6 +1,6 @@
 ---
 name: free-game-assets
-description: Source, evaluate, download, integrate, and document free game assets for NPC Collect Run. Use when selecting or changing GLB/GLTF character models, animations, textures, icons, sounds, fonts, UI assets, or any downloadable third-party resource that must be license-clear and recorded in docs/ASSETS.md.
+description: Source, evaluate, download, integrate, and document free game assets for Grab Rush. Use when selecting or changing GLB/GLTF character models, animations, textures, icons, sounds, fonts, UI assets, or any downloadable third-party resource that must be license-clear and recorded in docs/ASSETS.md.
 ---
 
 # Free Game Assets

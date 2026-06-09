@@ -1,4 +1,4 @@
 interface:
   display_name: "Vercel Game Deploy"
   short_description: "Verify this Next.js game for Vercel"
-  default_prompt: "Use vercel-game-deploy to verify NPC Collect Run build, static assets, docs/VERCEL.md, and local preview readiness."
+  default_prompt: "Use vercel-game-deploy to verify Grab Rush build, static assets, docs/VERCEL.md, and local preview readiness."

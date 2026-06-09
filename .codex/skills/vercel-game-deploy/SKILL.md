@@ -1,6 +1,6 @@
 ---
 name: vercel-game-deploy
-description: Prepare and verify this Next.js React Three Fiber game for Vercel deployment. Use when checking build scripts, App Router setup, static asset paths, GLB asset loading, environment variables, docs/VERCEL.md, production build, local preview, or deploy readiness for NPC Collect Run.
+description: Prepare and verify this Next.js React Three Fiber game for Vercel deployment. Use when checking build scripts, App Router setup, static asset paths, GLB asset loading, environment variables, docs/VERCEL.md, production build, local preview, or deploy readiness for Grab Rush.
 ---
 
 # Vercel Game Deploy

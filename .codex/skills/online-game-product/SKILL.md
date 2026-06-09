@@ -1,6 +1,6 @@
 ---
 name: online-game-product
-description: Scope and maintain the product spec for this agent-ready Next.js browser game. Use when defining or updating NPC Collect Run gameplay, MVP scope, controls, core loop, scoring, NPC behavior, agent boundaries, acceptance criteria, README usage, LinkedIn-ready repo explanation, or documentation under AGENTS.md and docs/SPEC.md.
+description: Scope and maintain the product spec for this agent-ready Next.js browser game. Use when defining or updating Grab Rush gameplay, MVP scope, controls, core loop, scoring, NPC behavior, agent boundaries, acceptance criteria, README usage, LinkedIn-ready repo explanation, or documentation under AGENTS.md and docs/SPEC.md.
 ---
 
 # Online Game Product
@@ -21,7 +21,7 @@ Use this skill to keep the repository product direction clear and agent-ready.
 
 ## Product Baseline
 
-- Game name: `NPC Collect Run`.
+- Game name: `Grab Rush`.
 - Framework: Next.js App Router.
 - Rendering: React Three Fiber and Three.js.
 - Mode: single-player.

@@ -1,4 +1,4 @@
-# NPC Collect Run
+# Grab Rush
 
 A ready-to-use Next.js 3D game repository designed to be evolved by focused coding agents.
 

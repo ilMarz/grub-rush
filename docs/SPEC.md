@@ -2,7 +2,7 @@
 
 ## Product
 
-`NPC Collect Run` is a mobile-first 3D browser game built with Next.js, React Three Fiber, and Three.js.
+`Grab Rush` is a mobile-first 3D browser game built with Next.js, React Three Fiber, and Three.js.
 
 The player controls a human character in an obstacle-filled arena. Collectible items spawn during a timed match. NPCs compete against the player by collecting the same items. The goal is to finish with the highest score before time expires.
 
