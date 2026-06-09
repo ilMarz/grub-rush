@@ -392,7 +392,7 @@ function CollectScene({
     lastBrickTimeRef.current = -brickCooldownSeconds;
     handledBrickRequestRef.current = brickRequestRef.current;
     const initial = Array.from({ length: 6 }, () => createCollectible(nextIdRef));
-    const initialNpcs = [createNpc(nextNpcIdRef, 12, -12), createNpc(nextNpcIdRef, -12, 12)];
+    const initialNpcs = [createNpc(nextNpcIdRef, obstacles, 12, -12), createNpc(nextNpcIdRef, obstacles, -12, 12)];
     playerBricksRef.current = [];
     collectiblesRef.current = initial;
     npcsRef.current = initialNpcs;
@@ -470,7 +470,7 @@ function CollectScene({
 
       let npcScoresChanged = false;
       const updatedNpcs = npcsRef.current.map((npc) =>
-        moveNpc(npc, collectiblesRef.current, currentObstacles, delta)
+        moveNpc(npc, collectiblesRef.current, currentObstacles, npcsRef.current, delta, playerPositionRef.current)
       );
 
       const nextParticles = collectParticlesRef.current.filter(p => elapsed - p.startTime < 0.7);
@@ -514,7 +514,7 @@ function CollectScene({
 
       if (updatedNpcs.length < maxNpcs && npcSpawnClockRef.current > 12) {
         npcSpawnClockRef.current = 0;
-        updatedNpcs.push(createNpc(nextNpcIdRef));
+        updatedNpcs.push(createNpc(nextNpcIdRef, currentObstacles));
         npcScoresChanged = true;
       }
 
@@ -660,7 +660,7 @@ function PulsingRings() {
     <>
       <mesh ref={outerRef} receiveShadow position={[0, 0.02, 0]} rotation={[-Math.PI / 2, 0, 0]}>
         <ringGeometry args={[arenaSize * 0.35, arenaSize * 0.49, 96]} />
-        <meshStandardMaterial color="#facc15" emissive="#facc15" emissiveIntensity={0.07} roughness={0.6} />
+        <meshStandardMaterial color="#a78bfa" emissive="#a78bfa" emissiveIntensity={0.07} roughness={0.6} />
       </mesh>
       <mesh ref={innerRef} receiveShadow position={[0, 0.03, 0]} rotation={[-Math.PI / 2, 0, 0]}>
         <ringGeometry args={[arenaSize * 0.12, arenaSize * 0.18, 72]} />
@@ -1104,15 +1104,41 @@ function createCollectible(
   };
 }
 
+function npcToObstacle(npc: NpcPlayer): SceneryItem {
+  return {
+    id: `npc-${npc.id}`,
+    x: npc.x,
+    z: npc.z,
+    width: 0.9,
+    height: 1.8,
+    depth: 0.9,
+    rotation: 0,
+    color: npc.color,
+    blocksMovement: true
+  };
+}
+
 function createNpc(
   nextNpcIdRef: React.MutableRefObject<number>,
-  x = randomEdgePosition(),
-  z = randomEdgePosition()
+  obstacles: SceneryItem[] = [],
+  explicitX?: number,
+  explicitZ?: number
 ): NpcPlayer {
   const id = nextNpcIdRef.current++;
   const names = ["Mia", "Leo", "Nora", "Teo"];
   const colors = ["#7dd3fc", "#c084fc", "#fb7185", "#86efac"];
   const kinds: NpcKind[] = ["adventurer", "farmer", "hoodie", "adventurer"];
+
+  let x = explicitX ?? randomEdgePosition();
+  let z = explicitZ ?? randomEdgePosition();
+
+  if (obstacles.length > 0 && explicitX === undefined) {
+    for (let attempt = 0; attempt < 30; attempt++) {
+      x = randomEdgePosition();
+      z = randomEdgePosition();
+      if (!collidesWithAny(x, z, obstacles, 0.9)) break;
+    }
+  }
 
   return {
     id,
@@ -1130,9 +1156,24 @@ function moveNpc(
   npc: NpcPlayer,
   collectibles: Collectible[],
   obstacles: SceneryItem[],
-  delta: number
+  otherNpcs: NpcPlayer[],
+  delta: number,
+  playerPosition?: Vector3
 ): NpcPlayer {
-  const target = chooseNpcTarget(npc, collectibles, obstacles);
+  const npcObstacles = otherNpcs.filter(n => n.id !== npc.id).map(npcToObstacle);
+  const playerObstacle: SceneryItem[] = playerPosition ? [{
+    id: "player",
+    x: playerPosition.x,
+    z: playerPosition.z,
+    width: 0.9,
+    height: 1.8,
+    depth: 0.9,
+    rotation: 0,
+    color: "#ffffff",
+    blocksMovement: true
+  }] : [];
+  const allObstacles = [...obstacles, ...npcObstacles, ...playerObstacle];
+  const target = chooseNpcTarget(npc, collectibles, allObstacles);
 
   if (!target) {
     return npc;
@@ -1148,7 +1189,7 @@ function moveNpc(
   const nextStep = chooseNpcStep({
     baseDirection,
     npc,
-    obstacles,
+    obstacles: allObstacles,
     stepDistance: npcSpeed * delta,
     target
   });
