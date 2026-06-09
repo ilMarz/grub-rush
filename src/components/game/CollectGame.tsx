@@ -580,7 +580,7 @@ function CollectScene({
   return (
     <>
       <color attach="background" args={["#21124a"]} />
-      <fog attach="fog" args={["#21124a", 30, 88]} />
+      <fog attach="fog" args={["#21124a", 42, 160]} />
       <ambientLight intensity={1.08} />
       <hemisphereLight args={["#9efcff", "#6d28d9", 1.35]} />
       <directionalLight
@@ -636,7 +636,7 @@ function CollectScene({
 
       <group ref={playerRef}>
         <PlayerCharacter isMoving={isMoving} />
-        <pointLight color="#facc15" intensity={3.5} distance={5} position={[0, 1.5, 0]} />
+        <pointLight color="#facc15" intensity={1.2} distance={4} position={[0, 1.5, 0]} />
       </group>
     </>
   );
@@ -649,10 +649,10 @@ function PulsingRings() {
   useFrame(({ clock }) => {
     const t = clock.elapsedTime;
     if (outerRef.current) {
-      (outerRef.current.material as MeshStandardMaterial).emissiveIntensity = 0.22 + Math.sin(t * 1.3) * 0.18;
+      (outerRef.current.material as MeshStandardMaterial).emissiveIntensity = 0.07 + Math.sin(t * 1.3) * 0.05;
     }
     if (innerRef.current) {
-      (innerRef.current.material as MeshStandardMaterial).emissiveIntensity = 0.32 + Math.sin(t * 1.9 + 1.1) * 0.22;
+      (innerRef.current.material as MeshStandardMaterial).emissiveIntensity = 0.1 + Math.sin(t * 1.9 + 1.1) * 0.06;
     }
   });
 
@@ -660,7 +660,7 @@ function PulsingRings() {
     <>
       <mesh ref={outerRef} receiveShadow position={[0, 0.02, 0]} rotation={[-Math.PI / 2, 0, 0]}>
         <ringGeometry args={[arenaSize * 0.35, arenaSize * 0.49, 96]} />
-        <meshStandardMaterial color="#facc15" emissive="#facc15" emissiveIntensity={0.22} roughness={0.55} />
+        <meshStandardMaterial color="#facc15" emissive="#facc15" emissiveIntensity={0.07} roughness={0.6} />
       </mesh>
       <mesh ref={innerRef} receiveShadow position={[0, 0.03, 0]} rotation={[-Math.PI / 2, 0, 0]}>
         <ringGeometry args={[arenaSize * 0.12, arenaSize * 0.18, 72]} />
@@ -800,17 +800,140 @@ function Starfield() {
         </group>
       ))}
 
-      <mesh ref={planetRef} position={[-17, 11, -18]} rotation={[0.35, 0.2, -0.4]}>
+      {/* Pink planet with ring */}
+      <mesh ref={planetRef} position={[-17, 6, -22]} rotation={[0.35, 0.2, -0.4]}>
         <sphereGeometry args={[2.7, 32, 16]} />
         <meshStandardMaterial color="#fb7185" emissive="#fb2055" emissiveIntensity={0.35} roughness={0.45} />
       </mesh>
-      <mesh position={[-17, 11, -18]} rotation={[1.15, 0.25, -0.2]}>
+      <mesh position={[-17, 6, -22]} rotation={[1.15, 0.25, -0.2]}>
         <torusGeometry args={[4.1, 0.08, 10, 72]} />
-        <meshStandardMaterial color="#fde68a" emissive="#fde68a" emissiveIntensity={0.4} roughness={0.35} />
+        <meshStandardMaterial color="#fde68a" emissive="#fde68a" emissiveIntensity={0.15} roughness={0.4} />
       </mesh>
-      <mesh ref={moonRef} position={[18, 13, -22]}>
+
+      {/* Blue moon */}
+      <mesh ref={moonRef} position={[18, 5, -20]}>
         <sphereGeometry args={[1.8, 24, 14]} />
         <meshStandardMaterial color="#38bdf8" emissive="#0ea5e9" emissiveIntensity={0.3} roughness={0.48} />
+      </mesh>
+
+      {/* Large purple gas giant with ring */}
+      <mesh position={[28, 4, -26]} rotation={[0.1, 0.4, 0.2]}>
+        <sphereGeometry args={[5.2, 32, 18]} />
+        <meshStandardMaterial color="#7c3aed" emissive="#4c1d95" emissiveIntensity={0.25} roughness={0.6} />
+      </mesh>
+      <mesh position={[28, 4, -26]} rotation={[0.6, 0.1, -0.3]}>
+        <torusGeometry args={[7.4, 0.14, 8, 80]} />
+        <meshStandardMaterial color="#a78bfa" emissive="#6d28d9" emissiveIntensity={0.3} roughness={0.4} />
+      </mesh>
+
+      {/* Teal planet */}
+      <mesh position={[-30, 3, -24]} rotation={[0.2, 0.6, 0.1]}>
+        <sphereGeometry args={[1.6, 24, 14]} />
+        <meshStandardMaterial color="#2dd4bf" emissive="#0d9488" emissiveIntensity={0.28} roughness={0.5} />
+      </mesh>
+
+      {/* Orange planet */}
+      <mesh position={[6, 3, -28]} rotation={[0.3, 0.2, -0.1]}>
+        <sphereGeometry args={[3.8, 28, 16]} />
+        <meshStandardMaterial color="#fb923c" emissive="#c2410c" emissiveIntensity={0.22} roughness={0.55} />
+      </mesh>
+
+      {/* White moon near orange */}
+      <mesh position={[12, 5, -26]}>
+        <sphereGeometry args={[0.9, 16, 10]} />
+        <meshStandardMaterial color="#f1f5f9" emissive="#94a3b8" emissiveIntensity={0.2} roughness={0.7} />
+      </mesh>
+
+      {/* Lime green small planet */}
+      <mesh position={[-8, 2, -26]}>
+        <sphereGeometry args={[1.1, 20, 12]} />
+        <meshStandardMaterial color="#86efac" emissive="#14532d" emissiveIntensity={0.22} roughness={0.5} />
+      </mesh>
+
+      {/* Deep red far planet */}
+      <mesh position={[-22, 2, -30]} rotation={[0.1, 0.3, 0.1]}>
+        <sphereGeometry args={[2.2, 24, 14]} />
+        <meshStandardMaterial color="#ef4444" emissive="#7f1d1d" emissiveIntensity={0.2} roughness={0.6} />
+      </mesh>
+
+      {/* Tiny icy planet far right */}
+      <mesh position={[36, 3, -28]}>
+        <sphereGeometry args={[1.0, 18, 12]} />
+        <meshStandardMaterial color="#bae6fd" emissive="#075985" emissiveIntensity={0.22} roughness={0.45} />
+      </mesh>
+
+      {/* Gold dwarf far left */}
+      <mesh position={[-38, 4, -26]}>
+        <sphereGeometry args={[1.3, 20, 12]} />
+        <meshStandardMaterial color="#fbbf24" emissive="#78350f" emissiveIntensity={0.2} roughness={0.5} />
+      </mesh>
+
+      {/* Nebula clouds back */}
+      <mesh position={[-6, 1, -32]}>
+        <sphereGeometry args={[16, 16, 10]} />
+        <meshBasicMaterial color="#4c1d95" transparent opacity={0.07} depthWrite={false} />
+      </mesh>
+      <mesh position={[20, 2, -30]}>
+        <sphereGeometry args={[12, 16, 10]} />
+        <meshBasicMaterial color="#164e63" transparent opacity={0.08} depthWrite={false} />
+      </mesh>
+      <mesh position={[-24, 1, -28]}>
+        <sphereGeometry args={[10, 14, 8]} />
+        <meshBasicMaterial color="#1e1b4b" transparent opacity={0.09} depthWrite={false} />
+      </mesh>
+
+      {/* === SIDE PLANETS === */}
+
+      {/* Right side — cyan large */}
+      <mesh position={[42, 5, -8]} rotation={[0.2, 0.1, 0.3]}>
+        <sphereGeometry args={[4.0, 28, 16]} />
+        <meshStandardMaterial color="#22d3ee" emissive="#0e7490" emissiveIntensity={0.25} roughness={0.5} />
+      </mesh>
+      <mesh position={[42, 5, -8]} rotation={[0.5, 0.2, -0.4]}>
+        <torusGeometry args={[5.8, 0.11, 8, 72]} />
+        <meshStandardMaterial color="#a5f3fc" emissive="#0e7490" emissiveIntensity={0.2} roughness={0.4} />
+      </mesh>
+
+      {/* Right side — small magenta */}
+      <mesh position={[38, 3, 6]}>
+        <sphereGeometry args={[1.2, 20, 12]} />
+        <meshStandardMaterial color="#e879f9" emissive="#701a75" emissiveIntensity={0.25} roughness={0.5} />
+      </mesh>
+
+      {/* Right side — warm yellow dwarf */}
+      <mesh position={[44, 4, -20]}>
+        <sphereGeometry args={[1.8, 20, 12]} />
+        <meshStandardMaterial color="#fde68a" emissive="#92400e" emissiveIntensity={0.18} roughness={0.55} />
+      </mesh>
+
+      {/* Left side — large violet */}
+      <mesh position={[-42, 4, -10]} rotation={[0.15, 0.5, 0.2]}>
+        <sphereGeometry args={[3.5, 28, 16]} />
+        <meshStandardMaterial color="#8b5cf6" emissive="#3b0764" emissiveIntensity={0.22} roughness={0.55} />
+      </mesh>
+
+      {/* Left side — small coral */}
+      <mesh position={[-38, 3, 4]}>
+        <sphereGeometry args={[1.0, 18, 12]} />
+        <meshStandardMaterial color="#f97316" emissive="#7c2d12" emissiveIntensity={0.2} roughness={0.5} />
+      </mesh>
+
+      {/* Left side — icy far */}
+      <mesh position={[-46, 5, -18]}>
+        <sphereGeometry args={[2.4, 22, 14]} />
+        <meshStandardMaterial color="#e0f2fe" emissive="#0369a1" emissiveIntensity={0.2} roughness={0.6} />
+      </mesh>
+
+      {/* Nebula side right */}
+      <mesh position={[40, 2, 0]}>
+        <sphereGeometry args={[14, 14, 8]} />
+        <meshBasicMaterial color="#083344" transparent opacity={0.08} depthWrite={false} />
+      </mesh>
+
+      {/* Nebula side left */}
+      <mesh position={[-40, 2, -4]}>
+        <sphereGeometry args={[13, 14, 8]} />
+        <meshBasicMaterial color="#1e1b4b" transparent opacity={0.08} depthWrite={false} />
       </mesh>
     </group>
   );

@@ -48,7 +48,7 @@ export function GlbCharacter({
         const original = mesh.material as MeshStandardMaterial;
         const mat = original.clone();
         mat.emissive.set(tintColor);
-        mat.emissiveIntensity = 0.22;
+        mat.emissiveIntensity = 0.1;
         mesh.material = mat;
       }
     });
