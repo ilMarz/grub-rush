@@ -274,15 +274,7 @@ export default function CollectGame() {
 
       {status === "playing" ? (
         <>
-          <section className={styles.controlsLeft} aria-label="Forward and back controls">
-            <HoldButton direction="up" label="Forward" onHold={(active) => setDirection("up", active)} />
-            <HoldButton direction="down" label="Back" onHold={(active) => setDirection("down", active)} />
-          </section>
-          <section className={styles.controlsRight} aria-label="Horizontal controls">
-            <div className={styles.controlRow}>
-              <HoldButton direction="left" label="Left" onHold={(active) => setDirection("left", active)} />
-              <HoldButton direction="right" label="Right" onHold={(active) => setDirection("right", active)} />
-            </div>
+          <section className={styles.controlsLeft} aria-label="Brick control">
             <button
               aria-label="Place brick"
               className={styles.brickButton}
@@ -294,6 +286,14 @@ export default function CollectGame() {
             >
               Brick
             </button>
+          </section>
+          <section className={styles.controlsRight} aria-label="Movement controls">
+            <HoldButton direction="up" label="Forward" onHold={(active) => setDirection("up", active)} />
+            <div className={styles.controlRow}>
+              <HoldButton direction="left" label="Left" onHold={(active) => setDirection("left", active)} />
+              <HoldButton direction="down" label="Back" onHold={(active) => setDirection("down", active)} />
+              <HoldButton direction="right" label="Right" onHold={(active) => setDirection("right", active)} />
+            </div>
           </section>
         </>
       ) : null}
