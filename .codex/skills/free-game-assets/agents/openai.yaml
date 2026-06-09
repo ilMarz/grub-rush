@@ -1,0 +1,4 @@
+interface:
+  display_name: "Free Game Assets"
+  short_description: "Source license-clear game assets"
+  default_prompt: "Use free-game-assets to source, validate, integrate, and document downloadable assets in docs/ASSETS.md."

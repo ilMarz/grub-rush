@@ -1,0 +1,4 @@
+interface:
+  display_name: "NPC Game Product"
+  short_description: "Maintain the game spec and agent workflow"
+  default_prompt: "Use online-game-product to update NPC Collect Run scope, docs/SPEC.md, AGENTS.md, or README usage."

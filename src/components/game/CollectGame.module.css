@@ -1,0 +1,271 @@
+.shell {
+  position: relative;
+  width: 100vw;
+  height: 100dvh;
+  overflow: hidden;
+  background:
+    radial-gradient(circle at 18% 18%, rgb(255 139 214 / 28%), transparent 24%),
+    radial-gradient(circle at 82% 12%, rgb(99 230 255 / 24%), transparent 24%),
+    linear-gradient(180deg, #18104a, #312e81 48%, #5b21b6);
+}
+
+.canvas {
+  position: absolute;
+  inset: 0;
+}
+
+.hud {
+  position: absolute;
+  top: max(14px, env(safe-area-inset-top));
+  left: max(14px, env(safe-area-inset-left));
+  right: max(14px, env(safe-area-inset-right));
+  z-index: 4;
+  display: grid;
+  grid-template-columns: repeat(3, minmax(0, 1fr));
+  gap: 8px;
+  pointer-events: none;
+}
+
+.hud > div {
+  min-width: 0;
+  padding: 9px 10px;
+  border: 1px solid rgb(255 255 255 / 22%);
+  border-radius: 8px;
+  background: rgb(37 24 92 / 68%);
+  backdrop-filter: blur(12px);
+  box-shadow: 0 10px 28px rgb(10 8 35 / 18%);
+}
+
+.hud span {
+  display: block;
+  color: rgb(245 243 255 / 72%);
+  font-size: 11px;
+  line-height: 1.1;
+}
+
+.hud strong {
+  display: block;
+  color: #fff7ad;
+  font-size: 18px;
+  font-weight: 800;
+  line-height: 1.1;
+}
+
+.timer {
+  position: absolute;
+  top: max(72px, calc(env(safe-area-inset-top) + 72px));
+  left: max(14px, env(safe-area-inset-left));
+  z-index: 4;
+  min-width: 84px;
+  padding: 9px 10px;
+  border: 1px solid rgb(255 255 255 / 22%);
+  border-radius: 8px;
+  background: rgb(37 24 92 / 68%);
+  pointer-events: none;
+  backdrop-filter: blur(12px);
+}
+
+.timer span {
+  display: block;
+  color: rgb(245 243 255 / 72%);
+  font-size: 11px;
+  line-height: 1.1;
+}
+
+.timer strong {
+  display: block;
+  color: #fff7ad;
+  font-size: 18px;
+  font-weight: 800;
+  line-height: 1.1;
+}
+
+.leaderboard {
+  position: absolute;
+  top: max(96px, calc(env(safe-area-inset-top) + 96px));
+  right: max(14px, env(safe-area-inset-right));
+  z-index: 4;
+  width: min(176px, calc(50vw - 18px));
+  padding: 10px;
+  border: 1px solid rgb(255 255 255 / 22%);
+  border-radius: 8px;
+  background: rgb(37 24 92 / 62%);
+  color: rgb(245 243 255 / 78%);
+  pointer-events: none;
+  backdrop-filter: blur(12px);
+}
+
+.leaderboard span {
+  display: block;
+  margin-bottom: 6px;
+  font-size: 11px;
+  line-height: 1;
+}
+
+.leaderboard strong,
+.leaderboard p {
+  display: block;
+  margin: 0;
+  color: #fff7ad;
+  font-size: 13px;
+  font-weight: 800;
+  line-height: 1.35;
+}
+
+.leaderboard p {
+  color: rgb(245 243 255 / 82%);
+  font-weight: 700;
+}
+
+.overlay {
+  position: absolute;
+  inset: 0;
+  z-index: 6;
+  display: flex;
+  align-items: flex-end;
+  justify-content: center;
+  padding: 22px 18px max(22px, env(safe-area-inset-bottom));
+  background: linear-gradient(180deg, rgb(24 16 74 / 12%), rgb(24 16 74 / 70%));
+}
+
+.panel {
+  width: min(390px, 100%);
+  padding: 15px;
+  border: 1px solid rgb(255 255 255 / 22%);
+  border-radius: 8px;
+  background: rgb(37 24 92 / 72%);
+  box-shadow: 0 22px 58px rgb(10 8 35 / 36%);
+  backdrop-filter: blur(18px);
+}
+
+.panel p,
+.panel span {
+  margin: 0;
+  color: rgb(245 243 255 / 78%);
+  font-size: 13px;
+  line-height: 1.45;
+}
+
+.panel h1 {
+  margin: 6px 0 8px;
+  color: #fff7ad;
+  font-size: 28px;
+  line-height: 1.05;
+}
+
+.panel button {
+  width: 100%;
+  min-height: 46px;
+  margin-top: 13px;
+  border: 0;
+  border-radius: 8px;
+  background: linear-gradient(135deg, #facc15, #fb7185);
+  color: #201047;
+  font-weight: 900;
+  cursor: pointer;
+}
+
+.controls {
+  position: absolute;
+  bottom: max(20px, env(safe-area-inset-bottom));
+  left: max(18px, env(safe-area-inset-left));
+  z-index: 5;
+  display: grid;
+  justify-items: center;
+  gap: 8px;
+  touch-action: none;
+}
+
+.controlRow {
+  display: flex;
+  gap: 8px;
+}
+
+.controlButton {
+  display: grid;
+  width: 64px;
+  height: 64px;
+  place-items: center;
+  border: 1px solid rgb(255 255 255 / 24%);
+  border-radius: 50%;
+  background: rgb(37 24 92 / 68%);
+  color: #fff7ad;
+  font-size: 25px;
+  line-height: 1;
+  backdrop-filter: blur(10px);
+  cursor: pointer;
+  user-select: none;
+}
+
+.controlIcon {
+  width: 0;
+  height: 0;
+  border-style: solid;
+}
+
+.up {
+  border-width: 0 10px 16px;
+  border-color: transparent transparent currentColor;
+}
+
+.down {
+  border-width: 16px 10px 0;
+  border-color: currentColor transparent transparent;
+}
+
+.left {
+  border-width: 10px 16px 10px 0;
+  border-color: transparent currentColor transparent transparent;
+}
+
+.right {
+  border-width: 10px 0 10px 16px;
+  border-color: transparent transparent transparent currentColor;
+}
+
+.controlButton:active {
+  background: rgb(250 204 21 / 88%);
+  color: #201047;
+}
+
+.brickButton {
+  min-width: 96px;
+  min-height: 46px;
+  border: 1px solid rgb(255 255 255 / 24%);
+  border-radius: 8px;
+  background: linear-gradient(135deg, rgb(249 115 22 / 92%), rgb(250 204 21 / 92%));
+  color: #201047;
+  font-weight: 900;
+  box-shadow: 0 14px 30px rgb(10 8 35 / 24%);
+  backdrop-filter: blur(10px);
+  cursor: pointer;
+  user-select: none;
+}
+
+.brickButton:active {
+  transform: translateY(1px);
+  filter: brightness(1.08);
+}
+
+@media (min-width: 760px) {
+  .controls {
+    left: 32px;
+    bottom: 32px;
+  }
+}
+
+@media (max-width: 520px) {
+  .timer {
+    top: max(70px, calc(env(safe-area-inset-top) + 70px));
+  }
+
+  .leaderboard {
+    top: max(124px, calc(env(safe-area-inset-top) + 124px));
+    width: 150px;
+  }
+
+  .leaderboard strong,
+  .leaderboard p {
+    font-size: 12px;
+  }
+}
